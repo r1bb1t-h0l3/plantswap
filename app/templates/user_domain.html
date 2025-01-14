@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Create a Post</h2>
+<form action="/create-post" method="POST" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label for="plantType" class="form-label">Plant Type</label>
+        <input type="text" class="form-control" id="plantType" name="plantType" required>
+    </div>
+    <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+    </div>
+    <div class="mb-3">
+        <label for="photo" class="form-label">Upload Photo</label>
+        <input type="file" class="form-control" id="photo" name="photo" required>
+    </div>
+    <div class="mb-3">
+        <label for="contact" class="form-label">Contact Information</label>
+        <input type="text" class="form-control" id="contact" name="contact" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Post</button>
+</form>
+{% endblock %}

@@ -1,0 +1,50 @@
+# Byte-compiled files
+*.pyc
+*.pyo
+__pycache__/
+
+# Virtual environment folder
+venv/
+env/
+
+# Development tools
+*.vscode/
+.idea/
+
+# Instance folder
+instance/
+
+# Flask session and cache files
+*.session
+.cache/
+
+# SQLite database
+*.db
+*.sqlite3
+
+# Logs
+*.log
+
+# Debugging output
+debug.log
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Installed dependencies (if already listed in requirements.txt)
+*.egg-info/
+pip-log.txt
+
+# User-uploaded files
+uploads/
+media/
+
+# Build and distribution directories
+build/
+dist/
+*.egg
+
