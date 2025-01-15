@@ -6,6 +6,10 @@
     <h2>{{ message }}</h2>
 
     <div class="col-md-8">
+        <form method="GET" action="/">
+            <input type="text" name="location" placeholder="Filter by location" class="form-control mb-3">
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </form>
         <div class="mb-3">
             <label for="areaFilter" class="form-label">Filter by Area:</label>
             <input type="text" id="areaFilter" class="form-control" placeholder="e.g., Mitte, Kreuzberg">
@@ -15,11 +19,22 @@
     </div>
 
     <!-- Right Column: User Posts -->
-    <div class="col-md-4">
-        <h4>User Posts</h4>
-        <div id="user-posts">
-            <!-- Dynamically load posts here -->
+<div class="col-md-4">
+    <h4>User Posts</h4>
+    <div id="user-posts">
+        {% for post in posts %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">{{ post.plant_type }}</h5>
+                <p class="card-text">{{ post.description }}</p>
+                <p><strong>Contact:</strong> {{ post.contact_info }}</p>
+                <p><strong>Location:</strong> {{ post.location_name }}</p>
+                {% if post.photo %}
+                <img src="{{ post.photo }}" alt="{{ post.plant_type }}" class="img-fluid">
+                {% endif %}
+            </div>
         </div>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}

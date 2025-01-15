@@ -1,0 +1,16 @@
+#user-posts .card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#user-posts .card-title {
+    font-size: 1.25rem;
+    color: #28a745;
+}
+
+#user-posts img {
+    max-width: 100%;
+    margin-top: 10px;
+    border-radius: 8px;
+}
