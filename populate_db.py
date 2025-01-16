@@ -31,6 +31,16 @@ post2 = Post(
     user_id=user2.id
 )
 
+post3 = Post(
+        plant_type="Fern",
+        description="A lush green fern up for trade.",
+        contact_info="johndoe@example.com",
+        location_name="Hamburg, Germany",
+        latitude=53.5511,
+        longitude=9.9937,
+        user_id=user1.id
+    )
+
 session.add_all([post1, post2])
 session.commit()
 
