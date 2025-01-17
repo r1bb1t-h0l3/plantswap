@@ -1,48 +1,60 @@
-from app.models import SessionLocal, User, Post
+from app import create_app, db
+from app.models import User, Post, SessionLocal
+from werkzeug.security import generate_password_hash
 
-# Start a new session
-session = SessionLocal()
+session = SessionLocal() # because using declarative base
 
-# Create dummy users
-user1 = User(username="johndoe", email="johndoe@example.com", password="hashed_password")
-user2 = User(username="janedoe", email="janedoe@example.com", password="hashed_password")
+# Add dummy users
+user1 = User(
+    username="Alice",
+    email="alice@example.com",
+    password=generate_password_hash("password1"),
+)
+user2 = User(
+    username="Bob",
+    email="bob@example.com",
+    password=generate_password_hash("password2"),
+)
+user3 = User(
+    username="Charlie",
+    email="charlie@example.com",
+    password=generate_password_hash("password3"),
+)
 
-session.add_all([user1, user2])
+session.add_all([user1, user2, user3])
 session.commit()
 
-# Create dummy posts
+# Add dummy posts
 post1 = Post(
     plant_type="Cactus",
-    description="A beautiful cactus looking for a new home.",
-    contact_info="johndoe@example.com",
-    location_name="Berlin, Germany",
+    description="A small but lively cactus for trade.",
+    contact_info="alice@example.com",
+    location_name="Mitte, Berlin",
     latitude=52.5200,
     longitude=13.4050,
-    user_id=user1.id
+    user_id=user1.id,
 )
-
 post2 = Post(
     plant_type="Succulent",
-    description="Healthy succulent available for swap.",
-    contact_info="janedoe@example.com",
-    location_name="Munich, Germany",
-    latitude=48.1351,
-    longitude=11.5820,
-    user_id=user2.id
+    description="Healthy succulent ready for a new home.",
+    contact_info="bob@example.com",
+    location_name="Neukölln, Berlin",
+    latitude=52.4800,
+    longitude=13.4376,
+    user_id=user2.id,
+)
+post3 = Post(
+    plant_type="Fern",
+    description="Lush fern looking for a swap partner.",
+    contact_info="charlie@example.com",
+    location_name="Mitte, Berlin",
+    latitude=52.5200,
+    longitude=13.4100,
+    user_id=user3.id,
 )
 
-post3 = Post(
-        plant_type="Fern",
-        description="A lush green fern up for trade.",
-        contact_info="johndoe@example.com",
-        location_name="Hamburg, Germany",
-        latitude=53.5511,
-        longitude=9.9937,
-        user_id=user1.id
-    )
-
-session.add_all([post1, post2])
+session.add_all([post1, post2, post3])
 session.commit()
+session.close() # need to explicitly close session
 
-print("Database populated with dummy posts!")
-session.close()
+print("Database populated successfully with dummy users and posts!")

@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, create_engine, Text, ForeignKey, Float
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 
 Base = declarative_base()
 
@@ -17,6 +18,14 @@ class User(Base, UserMixin):
     @staticmethod
     def get(session, user_id):
         return session.query(User).get(user_id)
+    
+    def set_password(self, password):
+        """Hash the password and store it in the model."""
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        """Verify a provided password against the stored hash."""
+        return check_password_hash(self.password, password)
     
 class Post(Base):
     __tablename__ = 'posts'

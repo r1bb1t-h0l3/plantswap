@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, request, redirect, url_for
-from flask_login import current_user, login_required
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask_login import current_user, login_required, login_user, logout_user
 from geopy.geocoders import Nominatim
-from .models import Post, SessionLocal
+from .models import Post, SessionLocal, User
+from werkzeug.security import check_password_hash
 
 # Define a blueprint for routing
 main = Blueprint('main', __name__)
@@ -40,11 +41,31 @@ def home():
 @main.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # Add authentication logic here
-        # Example: Authenticate user and log them in
-        # username = request.form['username']
-        # password = request.form['password']
-        # Authenticate user and call login_user(user) on success
+        #  get form data
+        username = request.form['username']
+        password = request.form['password']
+        
+        session = SessionLocal()
+
+        # look up if user by username
+        # Look up the user by username
+        user = session.query(User).filter_by(username=username).first()
+
+        if user:
+            # Verify the password
+            if check_password_hash(user.password, password):
+                # Log the user in
+                login_user(user)
+                flash('Login successful!', 'success')
+                session.close()
+                return redirect(url_for('main.home'))
+            else:
+                flash('Invalid username or password', 'danger')
+        else:
+            flash('Invalid username or password', 'danger')
+
+        session.close()
+
         return redirect(url_for('main.home'))
     return render_template('login.html')
 
@@ -73,6 +94,11 @@ def user_domain():
         # Save the post
         return redirect(url_for('main.home'))
     return render_template('user_domain.html')
+
+@main.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('main.login'))
     
 @main.route('/create-post', methods=['GET', 'POST'])
 @login_required
