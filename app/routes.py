@@ -3,6 +3,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 from geopy.geocoders import Nominatim
 from .models import Post, SessionLocal, User
 from werkzeug.security import check_password_hash
+from email_validator import validate_email, EmailNotValidError
 
 # Define a blueprint for routing
 main = Blueprint('main', __name__)
@@ -71,14 +72,55 @@ def login():
 
 @main.route('/register', methods=['GET', 'POST'])
 def register():
+
     if request.method == 'POST':
-        # Add registration logic here
-        # Example: Create a new user in the database
-        # username = request.form['username']
-        # email = request.form['email']
-        # password = request.form['password']
-        # Hash password and save user
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+
+        # Email validation step
+        try:
+            valid = validate_email(email)
+            email = valid.email # replace with normalised email if appropriate
+        except EmailNotValidError as e:
+            flash(str(e), 'danger')
+            return redirect(url_for('main.register'))
+        
+        if not username or not email or not password or not confirm_password:
+            flash('All fields required', 'danger')
+            return redirect(url_for('main.register'))
+        if password != confirm_password:
+            flash('Passwords do not match. Please try again.', 'danger')
+            return redirect(url_for('main.register'))
+        
+        session = SessionLocal()
+
+        #check if username or email already exists
+
+        if session.query(User).filter_by(username=username).first():
+            flash('Username already exists. Please choose a different one.', 'danger')
+            session.close()
+            return redirect(url_for('main.register'))
+        if session.query(User).filter_by(email=email).first():
+            flash('Email already registered. Please use a different email.')
+            session.close()
+            return redirect(url_for('main.register'))
+
+        # create new user
+        new_user = User(
+            username = username,
+            email=email,
+        )
+        new_user.set_password(password) # hash password
+
+        session.add(new_user)
+        session.commit()
+        session.close()
+
+        flash('Registration successful! You can log in :)', 'success')
         return redirect(url_for('main.login'))
+    
     return render_template('register.html')
 
 @main.route('/user', methods=['GET', 'POST'])
