@@ -1,9 +1,10 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import current_user, login_required, login_user, logout_user
 from geopy.geocoders import Nominatim
 from .models import Post, SessionLocal, User
 from werkzeug.security import check_password_hash
 from email_validator import validate_email, EmailNotValidError
+import os
 
 # Define a blueprint for routing
 main = Blueprint('main', __name__)
@@ -123,19 +124,15 @@ def register():
     
     return render_template('register.html')
 
-@main.route('/user', methods=['GET', 'POST'])
+@main.route('/user', methods=['GET'])
 @login_required
 def user_domain():
-    if request.method == 'POST':
-        # Add logic to handle post creation
-        # Example: Save the post data to the database
-        # plant_type = request.form['plantType']
-        # description = request.form['description']
-        # photo = request.files['photo']
-        # contact = request.form['contact']
-        # Save the post
-        return redirect(url_for('main.home'))
-    return render_template('user_domain.html')
+    session = SessionLocal()
+    
+    user_posts = session.query(Post).filter_by(user_id=current_user.id).all()
+    session.close()
+    
+    return render_template('user_domain.html', user_posts=user_posts)  
 
 @main.route('/logout')
 def logout():
@@ -145,36 +142,72 @@ def logout():
 @main.route('/create-post', methods=['GET', 'POST'])
 @login_required
 def create_post():
+    session = SessionLocal()
+
     if request.method == 'POST':
-        plant_type = request.form['plantType']
-        description = request.form['description']
-        contact_info = request.form['contact']
-        location_name = request.form['location']
-        photo = request.files['photo']  # Handle file uploads if applicable
+        plant_type = request.form.get('plantType')
+        description = request.form.get('description')
+        contact_info = request.form.get('contact')
+        location_name = request.form.get('location')
+        latitude = request.form.get('latitude')
+        longitude = request.form.get('longitude')
+        photo = request.files.get('photo')  # Handle file uploads if applicable
 
-        # Use geopy to get latitude and longitude
-        geolocator = Nominatim(user_agent="plantswap")
-        location = geolocator.geocode(location_name)
-        if location is None:
-            return "Invalid location", 400  # Handle invalid location gracefully
+        # save uploaded photo
+        photo_path = None
+        if photo:
+            photo_folder = 'app/static/upload'
+            os.makedir(photo_folder, exist_ok=True)
+            photo_path = os.path.join(photo_folder, photo.filename)
+            photo.save(photo_path)
 
-        # Save post to the database
-        session = SessionLocal()
+        # create new post
         post = Post(
             plant_type=plant_type,
             description=description,
             contact_info=contact_info,
             location_name=location_name,
-            latitude=location.latitude,
-            longitude=location.longitude,
-            user_id=current_user.id
+            latitude=float(latitude),
+            longitude=float(longitude),
+            photo=photo_path.replace('app/static/', '') if photo else None,
+            user_id=current_user.id,
         )
+
+        # Use geopy to get latitude and longitude
+        # geolocator = Nominatim(user_agent="plantswap")
+        # location = geolocator.geocode(location_name)
+        # if location is None:
+        #     return "Invalid location", 400  # Handle invalid location gracefully
+
+
         session.add(post)
         session.commit()
+        session.close()
 
-        return redirect(url_for('main.home'))
+        flash('Post created successfully!', 'success')
+        return redirect(url_for('main.user_domain'))
 
-    return render_template('create_post.html')
+
+@main.route('/autocomplete', methods=['GET'])
+def autocomplete():
+    query = request.args.get('query' '')
+
+    if not query:
+        return jsonify()
+    
+    geolocator = Nominatim(user_agent="plantswap_app")
+    locations = geolocator.geocode(query, exactly_one=False, limit=5)
+
+    results = []
+    if locations:
+        for location in locations:
+            results.append({
+                "name": location.address,
+                "latitude": location.latitude,
+                "longitude": location.longitude
+            })
+    return jsonify(results)
+
 
     
 

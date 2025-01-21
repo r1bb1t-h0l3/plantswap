@@ -1,24 +1,108 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Create a Post</h2>
-<form action="/create-post" method="POST" enctype="multipart/form-data">
-    <div class="mb-3">
-        <label for="plantType" class="form-label">Plant Type</label>
-        <input type="text" class="form-control" id="plantType" name="plantType" required>
+<div class="container mt-5">
+    <h2>My Account</h2>
+
+    <!-- Create New Post Form -->
+    <div class="container mt-4">
+        <h2>Create a New Post</h2>
+        <form action="/create-post" method="POST" enctype="multipart/form-data">
+            <!-- Plant Type -->
+            <div class="mb-3">
+                <label for="plantType" class="form-label">Plant Type</label>
+                <input type="text" class="form-control" id="plantType" name="plantType" placeholder="e.g., Cactus, Succulent" required>
+            </div>
+    
+            <!-- Description -->
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="4" placeholder="Add a description about the plant and swap details" required></textarea>
+            </div>
+    
+            <!-- Location w/ hidden latitude and longitude fields-->
+            <div class="mb-3">
+                <label for="location" class="form-label">Location</label>
+                <input type="text" class="form-control" id="location" name="location" placeholder="e.g., Berlin, Germany" required>
+                <ul id="autocomplete-results" class="list-group mt-1" style="position: absolute; z-index: 1000;"></ul>
+            </div>
+            <div class="mb-3">
+                <input type="hidden" name="latitude" id="latitude">
+                <input type="hidden" name="longitude" id="longitude">
+            </div>
+    
+            <!-- Contact Information -->
+            <div class="mb-3">
+                <label for="contact" class="form-label">Contact Information</label>
+                <input type="text" class="form-control" id="contact" name="contact" placeholder="e.g., john.doe@example.com or phone number" required>
+            </div>
+    
+            <!-- Photo Upload -->
+            <div class="mb-3">
+                <label for="photo" class="form-label">Upload Photo (optional)</label>
+                <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
+            </div>
+    
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary">Create Post</button>
+        </form>
     </div>
-    <div class="mb-3">
-        <label for="description" class="form-label">Description</label>
-        <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
-    </div>
-    <div class="mb-3">
-        <label for="photo" class="form-label">Upload Photo</label>
-        <input type="file" class="form-control" id="photo" name="photo" required>
-    </div>
-    <div class="mb-3">
-        <label for="contact" class="form-label">Contact Information</label>
-        <input type="text" class="form-control" id="contact" name="contact" required>
-    </div>
-    <button type="submit" class="btn btn-primary">Post</button>
-</form>
+    
+    <script>
+        const locationInput = document.getElementById('location');
+        const resultsList = document.getElementById('autocomplete-results');
+    
+        locationInput.addEventListener('input', async () => {
+            const query = locationInput.value;
+    
+            if (query.length < 3) {
+                resultsList.innerHTML = '';
+                return;
+            }
+    
+            const response = await fetch(`/autocomplete?query=${query}`);
+            const data = await response.json();
+    
+            resultsList.innerHTML = '';
+            data.forEach((item) => {
+                const listItem = document.createElement('li');
+                listItem.className = 'list-group-item';
+                listItem.textContent = item.name;
+                listItem.dataset.lat = item.latitude;
+                listItem.dataset.lon = item.longitude;
+                listItem.addEventListener('click', () => {
+                    locationInput.value = item.name;
+                    document.getElementById('latitude').value = item.latitude;
+                    document.getElementById('longitude').value = item.longitude;
+                    resultsList.innerHTML = '';
+                });
+                resultsList.appendChild(listItem);
+            });
+        });
+    </script>
+
+    <!-- User Posts -->
+    <h3 class="mt-5">Your Posts</h3>
+    {% if user_posts %}
+        <div class="row">
+            {% for post in user_posts %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    {% if post.photo %}
+                    <img src="{{ url_for('static', filename='uploads/' + post.photo) }}" class="card-img-top" alt="{{ post.plant_type }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ post.plant_type }}</h5>
+                        <p class="card-text">{{ post.description }}</p>
+                        <p><strong>Contact:</strong> {{ post.contact_info }}</p>
+                        <p><strong>Location:</strong> {{ post.location_name }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>You have not created any posts yet.</p>
+    {% endif %}
+</div>
 {% endblock %}

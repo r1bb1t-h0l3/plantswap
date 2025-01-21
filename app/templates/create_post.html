@@ -18,10 +18,15 @@
             <textarea class="form-control" id="description" name="description" rows="4" placeholder="Add a description about the plant and swap details" required></textarea>
         </div>
 
-        <!-- Location -->
+        <!-- Location w/ hidden latitude and longitude fields-->
         <div class="mb-3">
             <label for="location" class="form-label">Location</label>
             <input type="text" class="form-control" id="location" name="location" placeholder="e.g., Berlin, Germany" required>
+            <ul id="autocomplete-results" class="list-group mt-1" style="position: absolute; z-index: 1000;"></ul>
+        </div>
+        <div class="mb-3">
+            <input type="hidden" name="latitude" id="latitude">
+            <input type="hidden" name="longitude" id="longitude">
         </div>
 
         <!-- Contact Information -->
@@ -40,4 +45,37 @@
         <button type="submit" class="btn btn-primary">Create Post</button>
     </form>
 </div>
+
+<script>
+    const locationInput = document.getElementById('location');
+    const resultsList = document.getElementById('autocomplete-results');
+
+    locationInput.addEventListener('input', async () => {
+        const query = locationInput.value;
+
+        if (query.length < 3) {
+            resultsList.innerHTML = '';
+            return;
+        }
+
+        const response = await fetch(`/autocomplete?query=${query}`);
+        const data = await response.json();
+
+        resultsList.innerHTML = '';
+        data.forEach((item) => {
+            const listItem = document.createElement('li');
+            listItem.className = 'list-group-item';
+            listItem.textContent = item.name;
+            listItem.dataset.lat = item.latitude;
+            listItem.dataset.lon = item.longitude;
+            listItem.addEventListener('click', () => {
+                locationInput.value = item.name;
+                document.getElementById('latitude').value = item.latitude;
+                document.getElementById('longitude').value = item.longitude;
+                resultsList.innerHTML = '';
+            });
+            resultsList.appendChild(listItem);
+        });
+    });
+</script>
 {% endblock %}

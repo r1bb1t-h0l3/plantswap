@@ -2,6 +2,8 @@
 
 {% block content %}
 
+<div class="container mt-5"></div>
+
     <!-- Map and Filters -->
     <h2>{{ message }}</h2>
 
@@ -35,7 +37,7 @@
 
 <!-- Inject map data and load the map script -->
 <script>
-    // Inject map data into the JavaScript context
+    // Inject map data into the JavaScript context with Jinja syntax
     const mapData = {{ map_data | tojson | safe }};
 </script>
 <script src="{{ url_for('static', filename='js/map.js') }}" defer></script>
