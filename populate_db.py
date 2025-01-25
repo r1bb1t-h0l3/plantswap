@@ -27,31 +27,47 @@ session.commit()
 # Add dummy posts
 post1 = Post(
     plant_type="Cactus",
-    description="A small but lively cactus for trade.",
+    description="A small indoor cactus.",
     contact_info="alice@example.com",
     location_name="Mitte, Berlin",
     latitude=52.5200,
     longitude=13.4050,
-    user_id=user1.id,
+    is_indoor=True,
+    size="S",
+    is_flowering=False,
+    difficulty ="Easy",
+    sunlight ="Low",
+    user_id=user1.id
 )
 post2 = Post(
     plant_type="Succulent",
-    description="Healthy succulent ready for a new home.",
+    description="A medium outdoor succulent.",
     contact_info="bob@example.com",
     location_name="Neukölln, Berlin",
     latitude=52.4800,
     longitude=13.4376,
-    user_id=user2.id,
+    is_indoor=False,
+    size="M",
+    is_flowering=False,
+    difficulty ="Moderate",
+    sunlight ="High",
+    user_id=user2.id
 )
 post3 = Post(
-    plant_type="Fern",
-    description="Lush fern looking for a swap partner.",
+    plant_type="Rose",
+    description="A large flowering rose plant.",
     contact_info="charlie@example.com",
     location_name="Mitte, Berlin",
     latitude=52.5200,
     longitude=13.4100,
-    user_id=user3.id,
+    is_indoor=False,
+    size="L",
+    is_flowering=True,
+    difficulty ="Challenging",
+    sunlight ="Medium",
+    user_id=user3.id
 )
+
 
 session.add_all([post1, post2, post3])
 session.commit()

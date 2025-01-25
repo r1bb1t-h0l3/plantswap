@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, create_engine, Text, ForeignKey, Float
+from sqlalchemy import Column, Integer, String, create_engine, Text, ForeignKey, Float, Boolean
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -41,6 +41,13 @@ class Post(Base):
     location_name = Column(String(150), nullable=False)  # City or neighborhood name
     latitude = Column(Float, nullable=False)  # Geographical latitude
     longitude = Column(Float, nullable=False)  # Geographical longitude
+
+    # Filter fields
+    is_indoor = Column(Boolean, default=False)
+    size = Column(String(1)) #S, M, L
+    is_flowering = Column(Boolean, default=False)
+    difficulty = Column(String(50)) #easy, moderate, #challenging
+    sunlight = Column(String(50)) #low, medium, high
 
     author = relationship('User', back_populates='posts')
 

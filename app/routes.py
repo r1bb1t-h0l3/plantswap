@@ -13,11 +13,41 @@ main = Blueprint('main', __name__)
 def home():
     session = SessionLocal()
     location_filter = request.args.get('location')
+    indoor_filter = request.args.get('is indoor')
+    size_filter = request.args.get('size')
+    flowering_filter = request.args.get('is_flowering')
+    difficulty_filter = request.args.get('difficulty')
+    sunlight_filter = request.args.get('sunlight')
+
+    # Base query
+    query = session.query(Post)
+
+    #Dynamic filters
     if location_filter:
-        posts = session.query(Post).filter(Post.location_name.ilike(f"%{location_filter}%")).all()
-    else:
-        posts = session.query(Post).all()
+        query = query.filter(Post.location_name.ilike(f"%{location_filter}%"))
+    if indoor_filter:
+        query = query.filter(Post.is_indoor == (indoor_filter.lower() == 'true'))
+    if size_filter:
+        query = query.filter(Post.size.ilike(f"%{size_filter}%"))
+    if flowering_filter:
+        query = query.filter(Post.is_flowering == (flowering_filter.lower() == 'true'))
+    if difficulty_filter:
+        query = query.filter(Post.difficulty == (difficulty_filter.lower() == 'true'))
+    if sunlight_filter:
+        query = query.filter(Post.sunlight == (sunlight_filter.lower() == 'true'))
+    
+    posts = query.all()
     session.close()
+
+    # Pass active filters to template for UI
+    active_filters = {
+        "location": location_filter,
+        "is_indoor": indoor_filter,
+        "size": size_filter,
+        "is_flowering": flowering_filter,
+        "difficulty": difficulty_filter,
+        "sunlight": sunlight_filter
+    }
 
     # Prepare data for the map
     map_data = [
@@ -38,7 +68,7 @@ def home():
     else:
         message = "Welcome to Plant-Swap!"
 
-    return render_template('index.html', message=message, posts=posts, map_data=map_data)
+    return render_template('index.html', message=message, posts=posts, map_data=map_data, active_filters=active_filters)
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
@@ -170,7 +200,7 @@ def create_post():
             latitude=float(latitude),
             longitude=float(longitude),
             photo=photo_path.replace('app/static/', '') if photo else None,
-            user_id=current_user.id,
+            user_id=current_user.id
         )
 
         session.add(post)
