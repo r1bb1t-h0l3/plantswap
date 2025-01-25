@@ -157,7 +157,7 @@ def create_post():
         photo_path = None
         if photo:
             photo_folder = 'app/static/upload'
-            os.makedir(photo_folder, exist_ok=True)
+            os.makedirs(photo_folder, exist_ok=True)
             photo_path = os.path.join(photo_folder, photo.filename)
             photo.save(photo_path)
 
@@ -173,13 +173,6 @@ def create_post():
             user_id=current_user.id,
         )
 
-        # Use geopy to get latitude and longitude
-        # geolocator = Nominatim(user_agent="plantswap")
-        # location = geolocator.geocode(location_name)
-        # if location is None:
-        #     return "Invalid location", 400  # Handle invalid location gracefully
-
-
         session.add(post)
         session.commit()
         session.close()
@@ -193,10 +186,13 @@ def autocomplete():
     query = request.args.get('query' '')
 
     if not query:
-        return jsonify()
+        return jsonify([])
     
-    geolocator = Nominatim(user_agent="plantswap_app")
-    locations = geolocator.geocode(query, exactly_one=False, limit=5)
+    geolocator = Nominatim(user_agent="plantswap_app", timeout=5)
+    try:
+        locations = geolocator.geocode(query, exactly_one=False, limit=5)
+    except GeopyError as e:
+        return jsonify({"error": str(e)}), 500
 
     results = []
     if locations:
