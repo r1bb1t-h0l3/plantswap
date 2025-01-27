@@ -15,6 +15,9 @@ login_manager = LoginManager()
 def create_app():
     app = Flask(__name__)
 
+    app.config['DEBUG'] = True  # Enable debug mode
+    app.config['TEMPLATES_AUTO_RELOAD'] = True  # Automatically reload templates
+    app.config['SECRET_KEY'] = 'your_secret_key'
     app.config['SECRET_KEY'] = 'your_secret_key'
     app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.abspath(os.path.join(os.getcwd(), 'site.db'))}"
     print("Database URI:", app.config['SQLALCHEMY_DATABASE_URI'])

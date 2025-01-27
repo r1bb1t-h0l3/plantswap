@@ -1,85 +1,131 @@
 {% extends "base.html" %}
 
-{% block content %}
-<div class="container mt-5">
-    <h2>My Account</h2>
+{% block title %}Create a New Post - Plant-Swap{% endblock %}
 
-    <!-- Create New Post Form -->
-    <div class="container mt-4">
-        <h2>Create a New Post</h2>
-        <form action="/create-post" method="POST" enctype="multipart/form-data">
-            <!-- Plant Type -->
-            <div class="mb-3">
-                <label for="plantType" class="form-label">Plant Type</label>
-                <input type="text" class="form-control" id="plantType" name="plantType" placeholder="e.g., Cactus, Succulent" required>
-            </div>
-    
-            <!-- Description -->
-            <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
-                <textarea class="form-control" id="description" name="description" rows="4" placeholder="Add a description about the plant and swap details" required></textarea>
-            </div>
-    
-            <!-- Location w/ hidden latitude and longitude fields-->
-            <div class="mb-3">
-                <label for="location" class="form-label">Location</label>
-                <input type="text" class="form-control" id="location" name="location" placeholder="e.g., Berlin, Germany" required>
-                <ul id="autocomplete-results" class="list-group mt-1" style="position: absolute; z-index: 1000;"></ul>
-            </div>
-            <div class="mb-3">
-                <input type="hidden" name="latitude" id="latitude">
-                <input type="hidden" name="longitude" id="longitude">
-            </div>
-    
-            <!-- Contact Information -->
-            <div class="mb-3">
-                <label for="contact" class="form-label">Contact Information</label>
-                <input type="text" class="form-control" id="contact" name="contact" placeholder="e.g., john.doe@example.com or phone number" required>
-            </div>
-    
-            <!-- Photo Upload -->
-            <div class="mb-3">
-                <label for="photo" class="form-label">Upload Photo (optional)</label>
-                <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
-            </div>
-    
-            <!-- Submit Button -->
-            <button type="submit" class="btn btn-primary">Create Post</button>
-        </form>
-    </div>
-    
-    <script>
-        const locationInput = document.getElementById('location');
-        const resultsList = document.getElementById('autocomplete-results');
-    
-        locationInput.addEventListener('input', async () => {
-            const query = locationInput.value;
-    
-            if (query.length < 3) {
-                resultsList.innerHTML = '';
-                return;
-            }
-    
-            const response = await fetch(`/autocomplete?query=${query}`);
-            const data = await response.json();
-    
+{% block content %}
+<div class="container mt-4">
+    <h2>Create a New Post</h2>
+    <form action="/create-post" method="POST" enctype="multipart/form-data">
+        <!-- Plant Type -->
+        <div class="mb-3">
+            <label for="plantType" class="form-label">Plant Type</label>
+            <input type="text" class="form-control" id="plantType" name="plantType" placeholder="e.g., Cactus, Succulent" required>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="4" placeholder="Add a description about the plant and swap details" required></textarea>
+        </div>
+
+        <!-- Location w/ hidden latitude and longitude fields-->
+        <div class="mb-3">
+            <label for="location" class="form-label">Location</label>
+            <input type="text" class="form-control" id="location" name="location" placeholder="e.g., Berlin, Germany" required>
+            <ul id="autocomplete-results" class="list-group mt-1" style="position: absolute; z-index: 1000;"></ul>
+        </div>
+        <div class="mb-3">
+            <input type="hidden" name="latitude" id="latitude">
+            <input type="hidden" name="longitude" id="longitude">
+        </div>
+
+        <!-- Contact Information -->
+        <div class="mb-3">
+            <label for="contact" class="form-label">Contact Information</label>
+            <input type="text" class="form-control" id="contact" name="contact" placeholder="e.g., john.doe@example.com or phone number" required>
+        </div>
+
+        <!-- Photo Upload -->
+        <div class="mb-3">
+            <label for="photo" class="form-label">Upload Photo (optional)</label>
+            <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
+        </div>
+
+        <!-- Indoor/Outdoor -->
+        <div class="mb-3">
+            <label for="isIndoor" class="form-label">Indoor/Outdoor</label>
+            <select id="isIndoor" name="is_indoor" class="form-select" required>
+                <option value="true">Indoor</option>
+                <option value="false">Outdoor</option>
+            </select>
+        </div>
+
+        <!-- Size -->
+        <div class="mb-3">
+            <label for="size" class="form-label">Size</label>
+            <select id="size" name="size" class="form-select" required>
+                <option value="S">Small</option>
+                <option value="M">Medium</option>
+                <option value="L">Large</option>
+            </select>
+        </div>
+
+        <!-- Flowering -->
+        <div class="mb-3">
+            <label for="isFlowering" class="form-label">Flowering</label>
+            <select id="isFlowering" name="is_flowering" class="form-select" required>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+        </div>
+
+        <!-- Difficulty -->
+        <div class="mb-3">
+            <label for="difficulty" class="form-label">Difficulty</label>
+            <select id="difficulty" name="difficulty" class="form-select" required>
+                <option value="easy">Easy</option>
+                <option value="moderate">Moderate</option>
+                <option value="challenging">Challenging</option>
+            </select>
+        </div>
+
+        <!-- Sunlight -->
+        <div class="mb-3">
+            <label for="sunlight" class="form-label">Sunlight</label>
+            <select id="sunlight" name="sunlight" class="form-select" required>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary">Create Post</button>
+    </form>
+</div>
+
+<script>
+    const locationInput = document.getElementById('location');
+    const resultsList = document.getElementById('autocomplete-results');
+
+    locationInput.addEventListener('input', async () => {
+        const query = locationInput.value;
+
+        if (query.length < 3) {
             resultsList.innerHTML = '';
-            data.forEach((item) => {
-                const listItem = document.createElement('li');
-                listItem.className = 'list-group-item';
-                listItem.textContent = item.name;
-                listItem.dataset.lat = item.latitude;
-                listItem.dataset.lon = item.longitude;
-                listItem.addEventListener('click', () => {
-                    locationInput.value = item.name;
-                    document.getElementById('latitude').value = item.latitude;
-                    document.getElementById('longitude').value = item.longitude;
-                    resultsList.innerHTML = '';
-                });
-                resultsList.appendChild(listItem);
+            return;
+        }
+
+        const response = await fetch(`/autocomplete?query=${query}`);
+        const data = await response.json();
+
+        resultsList.innerHTML = '';
+        data.forEach((item) => {
+            const listItem = document.createElement('li');
+            listItem.className = 'list-group-item';
+            listItem.textContent = item.name;
+            listItem.dataset.lat = item.latitude;
+            listItem.dataset.lon = item.longitude;
+            listItem.addEventListener('click', () => {
+                locationInput.value = item.name;
+                document.getElementById('latitude').value = item.latitude;
+                document.getElementById('longitude').value = item.longitude;
+                resultsList.innerHTML = '';
             });
+            resultsList.appendChild(listItem);
         });
-    </script>
+    });
+</script>
 
     <!-- User Posts -->
     <h3 class="mt-5">Your Posts</h3>

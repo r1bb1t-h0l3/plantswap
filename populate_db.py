@@ -1,4 +1,3 @@
-from app import create_app, db
 from app.models import User, Post, SessionLocal
 from werkzeug.security import generate_password_hash
 
@@ -35,8 +34,8 @@ post1 = Post(
     is_indoor=True,
     size="S",
     is_flowering=False,
-    difficulty ="Easy",
-    sunlight ="Low",
+    difficulty ="easy",
+    sunlight ="low",
     user_id=user1.id
 )
 post2 = Post(
@@ -49,8 +48,8 @@ post2 = Post(
     is_indoor=False,
     size="M",
     is_flowering=False,
-    difficulty ="Moderate",
-    sunlight ="High",
+    difficulty ="moderate",
+    sunlight ="high",
     user_id=user2.id
 )
 post3 = Post(
@@ -63,14 +62,13 @@ post3 = Post(
     is_indoor=False,
     size="L",
     is_flowering=True,
-    difficulty ="Challenging",
-    sunlight ="Medium",
+    difficulty ="challenging",
+    sunlight ="medium",
     user_id=user3.id
 )
-
 
 session.add_all([post1, post2, post3])
 session.commit()
 session.close() # need to explicitly close session
-
 print("Database populated successfully with dummy users and posts!")
+

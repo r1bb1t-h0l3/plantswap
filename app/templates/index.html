@@ -18,6 +18,15 @@
                     {% endfor %}
                 {% endif %}
             </div>
+                <!-- <div id="active-filters" class="mb-3">
+                    {% for filter, value in active_filters.items() if value %}
+                    <span class="badge bg-primary">
+                        {{ filter.replace('_', ' ').capitalize() }}: {{ value }}
+                        <a href="#" class="text-white ms-2" onclick="removeFilter('{{ filter }}'); return false;">&times;</a>
+                    </span>
+                    {% endfor %}
+                
+                </div> -->
 
             <!-- Filter Form -->
             <form method="GET" action="/">
@@ -35,9 +44,9 @@
                     <div class="col-md-2">
                         <select name="size" class="form-select">
                             <option value="">Size</option>
-                            <option value="small">Small</option>
-                            <option value="medium">Medium</option>
-                            <option value="large">Large</option>
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                            <option value="L">L</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -58,9 +67,9 @@
                     <div class="col-md-2">
                         <select name="sunlight" class="form-select">
                             <option value="">Sunlight</option>
-                            <option value="easy">Low</option>
-                            <option value="moderate">Medium</option>
-                            <option value="challenging">High</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -87,13 +96,13 @@
                             <p><strong>Contact:</strong> {{ post.contact_info }}</p>
                             <p><strong>Location:</strong> {{ post.location_name }}</p>
                             {% if post.photo %}
-                            <img src="{{ url_for('static', filename='uploads/' ~ post.photo) }}" alt="{{ post.plant_type }}" class="img-fluid mb-3">
+                            <img src="{{ url_for('static', filename=post.photo) }}" alt="{{ post.plant_type }}" class="img-fluid mb-3">
                             {% endif %}
                             <div class="d-flex align-items-center mt-2">
                                 <span class="badge bg-light text-dark ms-2">{{ post.size | capitalize }}</span>
                                 <span class="badge bg-light text-dark ms-2">{{ 'Indoor' if post.is_indoor else 'Outdoor' }}</span>
                                 <span class="badge bg-info text-dark ms-2">{{ post.difficulty | capitalize }}</span>
-                                <span class="badge bg-light text-darkms-2">{{ 'Flowering' if post.is_flowering else 'Non-Flowering' }}</span>
+                                <span class="badge bg-light text-dark ms-2">{{ 'Flowering' if post.is_flowering else 'Non-Flowering' }}</span>
                                 <span class="badge bg-info text-dark ms-2">{{ post.sunlight | capitalize }}</span>
                             </div>
                         </div>
@@ -106,6 +115,70 @@
         </div>
     </div>
 </div>
+<!--  Pagination -->
+<div class="mt-4">
+    <nav aria-label="Pagination">
+        <ul class="pagination justify-content-center">
+            <!-- Previous Page -->
+            {% if current_page > 1 %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('main.home', page=current_page-1) }}{% if request.args|length > 0 %}&{{ request.query_string.decode('utf-8') }}{% endif %}">
+                    Previous
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">Previous</span>
+            </li>
+            {% endif %}
+
+            <!-- Page Numbers -->
+            {% for page_num in range(1, total_pages + 1) %}
+            <li class="page-item {% if page_num == current_page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('main.home', page=page_num) }}{% if request.args|length > 0 %}&{{ request.query_string.decode('utf-8') }}{% endif %}">
+                    {{ page_num }}
+                </a>
+            </li>
+            {% endfor %}
+
+            <!-- Next Page -->
+            {% if current_page < total_pages %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('main.home', page=current_page+1) }}{% if request.args|length > 0 %}&{{ request.query_string.decode('utf-8') }}{% endif %}">
+                    Next
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">Next</span>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+
+
+<script>
+    document.querySelector('form').addEventListener('submit', function (e) {
+        const form = e.target;
+        const formData = new FormData(form);
+
+        // Remove empty fields
+        for (let [key, value] of formData.entries()) {
+            if (!value) {
+                formData.delete(key);
+            }
+        }
+
+        // Rebuild the query string
+        const params = new URLSearchParams(formData);
+        const action = form.getAttribute('action') || window.location.pathname;
+        window.location.href = `${action}?${params.toString()}`;
+
+        e.preventDefault(); // Prevent the default form submission
+    });
+</script>
+
 
 <script>
     function removeFilter(filterName) {

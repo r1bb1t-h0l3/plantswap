@@ -12,15 +12,20 @@ main = Blueprint('main', __name__)
 @main.route('/', methods =['GET'])
 def home():
     session = SessionLocal()
+    # Base query
+    query = session.query(Post)
+
+    session = SessionLocal()
     location_filter = request.args.get('location')
-    indoor_filter = request.args.get('is indoor')
+    indoor_filter = request.args.get('is_indoor')
     size_filter = request.args.get('size')
     flowering_filter = request.args.get('is_flowering')
     difficulty_filter = request.args.get('difficulty')
     sunlight_filter = request.args.get('sunlight')
 
-    # Base query
-    query = session.query(Post)
+    # Pagination parameters
+    page = request.args.get('page', 1, type=int)  # Current page number (default is 1)
+    per_page = 5  # Number of posts per page
 
     #Dynamic filters
     if location_filter:
@@ -28,19 +33,26 @@ def home():
     if indoor_filter:
         query = query.filter(Post.is_indoor == (indoor_filter.lower() == 'true'))
     if size_filter:
-        query = query.filter(Post.size.ilike(f"%{size_filter}%"))
+        query = query.filter(Post.size.ilike(size_filter.upper()))
     if flowering_filter:
         query = query.filter(Post.is_flowering == (flowering_filter.lower() == 'true'))
     if difficulty_filter:
-        query = query.filter(Post.difficulty == (difficulty_filter.lower() == 'true'))
+        query = query.filter(Post.difficulty == (difficulty_filter.lower()))
     if sunlight_filter:
-        query = query.filter(Post.sunlight == (sunlight_filter.lower() == 'true'))
+        query = query.filter(Post.sunlight == (sunlight_filter.lower()))
+
+     # Pagination logic
+    total_posts = query.count()  # Total number of posts
+    posts = query.offset((page - 1) * per_page).limit(per_page).all()  # Fetch posts for the current page
+
+    # Calculate total pages
+    total_pages = (total_posts + per_page - 1) // per_page  # Round up
     
     posts = query.all()
     session.close()
 
     # Pass active filters to template for UI
-    active_filters = {
+    filters = {
         "location": location_filter,
         "is_indoor": indoor_filter,
         "size": size_filter,
@@ -48,6 +60,8 @@ def home():
         "difficulty": difficulty_filter,
         "sunlight": sunlight_filter
     }
+
+    active_filters = {key: value for key, value in filters.items() if value}
 
     # Prepare data for the map
     map_data = [
@@ -68,7 +82,14 @@ def home():
     else:
         message = "Welcome to Plant-Swap!"
 
-    return render_template('index.html', message=message, posts=posts, map_data=map_data, active_filters=active_filters)
+    return render_template(
+        'index.html', 
+        message=message, 
+        posts=posts, 
+        map_data=map_data, 
+        active_filters=active_filters,
+        current_page=page,
+        total_pages=total_pages)
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
@@ -182,6 +203,16 @@ def create_post():
         latitude = request.form.get('latitude')
         longitude = request.form.get('longitude')
         photo = request.files.get('photo')  # Handle file uploads if applicable
+        is_indoor = request.files.get('is_indoor') == 'true'
+        size = request.form.get('size')
+        is_flowering = request.form.get('is_flowering') == 'true'
+        difficulty = request.form.get('difficulty')
+        sunlight = request.form.get('sunlight')
+
+        # Validate required fields
+        if not all([plant_type, description, contact_info, location_name, latitude, longitude]):
+            flash('All fields are required.', 'danger')
+            return redirect(url_for('main.create_post'))
 
         # save uploaded photo
         photo_path = None
@@ -190,6 +221,9 @@ def create_post():
             os.makedirs(photo_folder, exist_ok=True)
             photo_path = os.path.join(photo_folder, photo.filename)
             photo.save(photo_path)
+            print(photo_path)
+
+        relative_photo_path = photo_path.replace('app/static/', '') if photo_path else None
 
         # create new post
         post = Post(
@@ -199,7 +233,12 @@ def create_post():
             location_name=location_name,
             latitude=float(latitude),
             longitude=float(longitude),
-            photo=photo_path.replace('app/static/', '') if photo else None,
+            photo=relative_photo_path,
+            is_indoor=is_indoor,
+            size=size,
+            is_flowering=is_flowering,
+            difficulty=difficulty,
+            sunlight=sunlight,
             user_id=current_user.id
         )
 
