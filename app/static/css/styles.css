@@ -14,3 +14,8 @@
     margin-top: 10px;
     border-radius: 8px;
 }
+
+.bi {
+    font-size: 1.5rem; /* Adjust icon size */
+    cursor: pointer;
+}

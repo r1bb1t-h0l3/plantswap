@@ -2,120 +2,145 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2>{{ message }}</h2>
+    <h2 class="text-center mb-4">{{ message }}</h2>
 
     <div class="row">
-        <!-- Map and Filters -->
-        <div class="container mt-4">
+        <!-- Filters Section -->
+        <div class="container mb-4">
             <!-- Active Filters -->
             <div id="active-filters" class="mb-3">
                 {% if active_filters %}
                     {% for filter, value in active_filters.items() if value %}
-                    <span class="badge bg-primary">
+                    <span class="badge bg-primary px-3 py-2 me-2">
                         {{ filter.replace('_', ' ').capitalize() }}: {{ value }}
                         <a href="#" class="text-white ms-2" onclick="removeFilter('{{ filter }}'); return false;">&times;</a>
                     </span>
                     {% endfor %}
                 {% endif %}
             </div>
-                <!-- <div id="active-filters" class="mb-3">
-                    {% for filter, value in active_filters.items() if value %}
-                    <span class="badge bg-primary">
-                        {{ filter.replace('_', ' ').capitalize() }}: {{ value }}
-                        <a href="#" class="text-white ms-2" onclick="removeFilter('{{ filter }}'); return false;">&times;</a>
-                    </span>
-                    {% endfor %}
-                
-                </div> -->
 
             <!-- Filter Form -->
-            <form method="GET" action="/">
-                <div class="row mb-3">
-                    <div class="col-md-4">
-                        <input type="text" name="location" class="form-control" placeholder="Filter by location">
-                    </div>
-                    <div class="col-md-2">
-                        <select name="is_indoor" class="form-select">
-                            <option value="">Indoor/Outdoor</option>
-                            <option value="true">Indoor</option>
-                            <option value="false">Outdoor</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select name="size" class="form-select">
-                            <option value="">Size</option>
-                            <option value="S">S</option>
-                            <option value="M">M</option>
-                            <option value="L">L</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select name="is_flowering" class="form-select">
-                            <option value="">Flowering</option>
-                            <option value="true">Yes</option>
-                            <option value="false">No</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select name="difficulty" class="form-select">
-                            <option value="">Difficulty</option>
-                            <option value="easy">Easy</option>
-                            <option value="moderate">Moderate</option>
-                            <option value="challenging">Challenging</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select name="sunlight" class="form-select">
-                            <option value="">Sunlight</option>
-                            <option value="low">Low</option>
-                            <option value="medium">Medium</option>
-                            <option value="high">High</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
-                    </div>
+            <form method="GET" action="/" class="row gy-2">
+                <div class="col-md-4">
+                    <input type="text" name="location" class="form-control" placeholder="Filter by location">
+                </div>
+                <div class="col-md-2">
+                    <select name="is_indoor" class="form-select">
+                        <option value="">Indoor/Outdoor</option>
+                        <option value="true">Indoor</option>
+                        <option value="false">Outdoor</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="size" class="form-select">
+                        <option value="">Size</option>
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="is_flowering" class="form-select">
+                        <option value="">Flowering</option>
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="difficulty" class="form-select">
+                        <option value="">Difficulty</option>
+                        <option value="easy">Easy</option>
+                        <option value="moderate">Moderate</option>
+                        <option value="challenging">Challenging</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="sunlight" class="form-select">
+                        <option value="">Sunlight</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
                 </div>
             </form>
         </div>
 
-        <div class="col-md-8">
-            <div id="map" style="width: 100%; height: 400px; border: 2px solid #ddd;"></div>
-        </div>
+        <!-- Main Content -->
+        <div class="row">
+            <!-- Map Section -->
+            <div class="col-md-8">
+                <div id="map" style="width: 100%; height: 600px; border: 2px solid #ddd; border-radius: 8px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);"></div>
+            </div>
 
-        <!-- Right Column: User Posts -->
-        <div class="col-md-4">
-            <h4>User Posts</h4>
-            <div id="user-posts">
-                {% if posts %}
-                    {% for post in posts %}
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ post.plant_type }}</h5>
-                            <p class="card-text">{{ post.description }}</p>
-                            <p><strong>Contact:</strong> {{ post.contact_info }}</p>
-                            <p><strong>Location:</strong> {{ post.location_name }}</p>
-                            {% if post.photo %}
-                            <img src="{{ url_for('static', filename=post.photo) }}" alt="{{ post.plant_type }}" class="img-fluid mb-3">
-                            {% endif %}
-                            <div class="d-flex align-items-center mt-2">
-                                <span class="badge bg-light text-dark ms-2">{{ post.size | capitalize }}</span>
-                                <span class="badge bg-light text-dark ms-2">{{ 'Indoor' if post.is_indoor else 'Outdoor' }}</span>
-                                <span class="badge bg-info text-dark ms-2">{{ post.difficulty | capitalize }}</span>
-                                <span class="badge bg-light text-dark ms-2">{{ 'Flowering' if post.is_flowering else 'Non-Flowering' }}</span>
-                                <span class="badge bg-info text-dark ms-2">{{ post.sunlight | capitalize }}</span>
+            <!-- User Posts Section -->
+            <div class="col-md-4">
+                <h4 class="mb-3">User Posts</h4>
+                <div id="user-posts">
+                    {% if posts %}
+                        {% for post in posts %}
+                        <div class="card mb-4 shadow-sm">
+                            <div class="card-body">
+                                <!-- Plant Type -->
+                                <h5 class="card-title">{{ post.plant_type }}</h5>
+                
+                                <!-- Description -->
+                                <p class="card-text">{{ post.description }}</p>
+                
+                                <!-- Contact Information -->
+                                <p><strong>Contact:</strong> {{ post.contact_info }}</p>
+                
+                                <!-- Location -->
+                                <p><strong>Location:</strong> {{ post.location_name }}</p>
+                
+                                <!-- Photo -->
+                                {% if post.photo %}
+                                <img src="{{ url_for('static', filename=post.photo) }}" alt="{{ post.plant_type }}" class="img-fluid mb-3 rounded">
+                                {% endif %}
+                
+                                <!-- Icons Section -->
+                                <div class="d-flex align-items-center mt-2">
+                                    <!-- Indoor/Outdoor -->
+                                    {% if post.is_indoor %}
+                                    <span class="ms-2" data-bs-toggle="tooltip" title="Indoor Plant">
+                                        <i class="bi bi-house-fill text-success"></i>
+                                    </span>
+                                    {% else %}
+                                    <span class="ms-2" data-bs-toggle="tooltip" title="Outdoor Plant">
+                                        <i class="bi bi-tree-fill text-success"></i>
+                                    </span>
+                                    {% endif %}
+                
+                                    <!-- Flowering -->
+                                    <span class="ms-2" data-bs-toggle="tooltip" title="{{ 'Flowering' if post.is_flowering else 'Non-Flowering' }}">
+                                        <i class="bi {{ 'bi-flower1' if post.is_flowering else 'bi-x-circle-fill' }} text-primary"></i>
+                                    </span>
+                
+                                    <!-- Difficulty -->
+                                    <span class="ms-2" data-bs-toggle="tooltip" title="{{ post.difficulty.capitalize() }}">
+                                        <i class="bi {{ 'bi-check-circle-fill text-success' if post.difficulty == 'easy' else 'bi-exclamation-circle-fill text-warning' if post.difficulty == 'moderate' else 'bi-x-circle-fill text-danger' }}"></i>
+                                    </span>
+                
+                                    <!-- Sunlight -->
+                                    <span class="ms-2" data-bs-toggle="tooltip" title="Sunlight: {{ post.sunlight.capitalize() }}">
+                                        <i class="bi {{ 'bi-brightness-low' if post.sunlight == 'low' else 'bi-brightness-alt-low' if post.sunlight == 'medium' else 'bi-brightness-high' }} text-warning"></i>
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                <p class="text-muted">No posts available.</p>
-                {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No posts available.</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
 </div>
-<!--  Pagination -->
+
+<!-- Pagination -->
 <div class="mt-4">
     <nav aria-label="Pagination">
         <ul class="pagination justify-content-center">
@@ -157,7 +182,6 @@
     </nav>
 </div>
 
-
 <script>
     document.querySelector('form').addEventListener('submit', function (e) {
         const form = e.target;
@@ -179,7 +203,6 @@
     });
 </script>
 
-
 <script>
     function removeFilter(filterName) {
         const url = new URL(window.location.href);
@@ -187,6 +210,7 @@
         window.location.href = url.toString();
     }
 </script>
+
 <script>
     const mapData = {{ map_data | tojson | safe }};
 </script>
